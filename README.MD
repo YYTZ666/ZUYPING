@@ -9,3 +9,4 @@
 经过了完整的重写和逻辑替换，如有错误请提出Issure和Pull
 
 本项目由[Minecraft服务器集体宣传组织（MSCPO）维护](http://mscpo.netlify.app/)
+YYTZ魔改了一把，默认请求基岩版服务器，请求JAVA要加上java=true
