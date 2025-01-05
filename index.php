@@ -16,7 +16,7 @@ error_reporting(0);
 
 $api_version = 'v0.5.76';
 
-// 默认IP端口
+// Default server IP and port
 $default_ip = 'zuycraft.zuyst.top';  // Replace with your default server IP
 $default_port = '37581';            // Replace with your default server port
 
@@ -41,6 +41,7 @@ $array = [
     'client' => 'N/A'
 ];
 
+// Use provided IP and port if available, otherwise use default values
 $ip = $_REQUEST['ip'] ?? $default_ip;
 $port = $_REQUEST['port'] ?? $default_port;
 
