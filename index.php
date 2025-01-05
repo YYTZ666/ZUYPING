@@ -45,8 +45,48 @@ $array = [
 $ip = $_REQUEST['ip'] ?? $default_ip;
 $port = $_REQUEST['port'] ?? $default_port;
 
+// Use provided server type if available, otherwise assume Java edition
+$server_type = $_REQUEST['server_type'] ?? 'java';
+
 if (!$Utils->hasEmpty($ip, $port)) {
-    if (!isset($_REQUEST['java'])) {
+    if ($server_type !== 'java') {
+        // 基岩版查询逻辑
+        $t1 = microtime(true);
+        if ($handle = stream_socket_client("udp://{$ip}:{$port}", $errno, $errstr, 2)) {
+            stream_set_timeout($handle, 2);
+            fwrite($handle, hex2bin('0100000000240D12D300FFFF00FEFEFEFEFDFDFDFD12345678') . "\n");
+            $result = strstr(fread($handle, 1024), "MCPE");
+            fclose($handle);
+            $data = explode(";", $result);
+            $data['1'] = preg_replace("/§[a-z A-Z 0-9]{1}/s", '', $data['1']);
+            if (!$Utils->hasEmpty($data, $data['1'])) {
+                $t2 = microtime(true);
+                $real = gethostbyname($ip);
+                $array = [
+                    'code' => 200,
+                    'api_version' => $api_version,
+                    'status' => 'online',
+                    'ip' => $ip,
+                    'node_ip' => $api_nodeIP,
+                    'port' => $port,
+                    'favicon' => 'N/A',
+                    'motd' => $data['1'],
+                    'agreement' => $data['2'],
+                    'version' => $data['3'],
+                    'online' => $data['4'],
+                    'max' => $data['5'],
+                    'gamemode' => $data['8'],
+                    'delay' => round($t2 - $t1, 3) * 1000,
+                    'client' => 'BE'
+                ];
+            } else {
+                $array['code'] = 203;
+            }
+        } else {
+            $array['code'] = 202;
+        }
+    } else {
+        // Java版查询逻辑
         define('MQ_SERVER_ADDR', $ip);
         define('MQ_SERVER_PORT', $port);
         define('MQ_TIMEOUT', 1);
@@ -118,42 +158,6 @@ if (!$Utils->hasEmpty($ip, $port)) {
                 'delay' => round($Timer, 3) * 1000,
                 'client' => 'JE'
             ];
-        }
-    } else {
-        // 基岩版查询逻辑
-        $t1 = microtime(true);
-        if ($handle = stream_socket_client("udp://{$ip}:{$port}", $errno, $errstr, 2)) {
-            stream_set_timeout($handle, 2);
-            fwrite($handle, hex2bin('0100000000240D12D300FFFF00FEFEFEFEFDFDFDFD12345678') . "\n");
-            $result = strstr(fread($handle, 1024), "MCPE");
-            fclose($handle);
-            $data = explode(";", $result);
-            $data['1'] = preg_replace("/§[a-z A-Z 0-9]{1}/s", '', $data['1']);
-            if (!$Utils->hasEmpty($data, $data['1'])) {
-                $t2 = microtime(true);
-                $real = gethostbyname($ip);
-                $array = [
-                    'code' => 200,
-                    'api_version' => $api_version,
-                    'status' => 'online',
-                    'ip' => $ip,
-                    'node_ip' => $api_nodeIP,
-                    'port' => $port,
-                    'favicon' => 'N/A',
-                    'motd' => $data['1'],
-                    'agreement' => $data['2'],
-                    'version' => $data['3'],
-                    'online' => $data['4'],
-                    'max' => $data['5'],
-                    'gamemode' => $data['8'],
-                    'delay' => round($t2 - $t1, 3) * 1000,
-                    'client' => 'BE'
-                ];
-            } else {
-                $array['code'] = 203;
-            }
-        } else {
-            $array['code'] = 202;
         }
     }
 } else {
