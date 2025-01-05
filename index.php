@@ -17,8 +17,8 @@ error_reporting(0);
 $api_version = 'v0.5.76';
 
 // Default server IP and port
-$default_ip = 'zuycraft.zuyst.top';  // Replace with your default server IP
-$default_port = '37581';            // Replace with your default server port
+$default_ip = 'zuycraft.zuyst.top';
+$default_port = '37581';
 
 // 获取当前运行脚本的服务器的IP地址
 $api_nodeIP = $_REQUEST['get_nodeip'] ? $_SERVER['SERVER_ADDR'] : 'N/A';
@@ -44,12 +44,10 @@ $array = [
 // Use provided IP and port if available, otherwise use default values
 $ip = $_REQUEST['ip'] ?? $default_ip;
 $port = $_REQUEST['port'] ?? $default_port;
-
-// Use provided server type if available, otherwise assume Java edition
-$server_type = $_REQUEST['server_type'] ?? 'java';
+$java = $_REQUEST['java'] ?? null;
 
 if (!$Utils->hasEmpty($ip, $port)) {
-    if ($server_type !== 'java') {
+    if ($java !== 'true') {
         // 基岩版查询逻辑
         $t1 = microtime(true);
         if ($handle = stream_socket_client("udp://{$ip}:{$port}", $errno, $errstr, 2)) {
