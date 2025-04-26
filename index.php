@@ -17,7 +17,7 @@ error_reporting(0);
 $api_version = 'v0.5.76';
 
 // Default server IP and port
-$default_ip = 'zuycraft.zuyst.top';
+$default_ip = '1.mcs.zuyst.top';
 $default_port = '37581';
 
 // 获取当前运行脚本的服务器的IP地址
